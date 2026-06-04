@@ -14,7 +14,7 @@
 1. **MUST** 存储层：所有金融数值 DTO 使用 `String?`，Gson 读取原始文本，零数值中转、零精度丢失
 2. **MUST** 运算层：所有金融计算使用 `BigDecimal`，**MUST NOT** 使用 `Double/Float` 做运算、比较、判等
 3. **MUST** 展示层：所有数值格式化统一收口 `NumericFormat`，禁止手写格式化逻辑
-4. **MUST** 兜底层：全局 Gson 大数策略 + 空值/非法值自动归零；异常场景强制埋日志，杜绝崩溃、空白、异常
+4. **MUST** 兜底层：全局 Gson 大数策略 + 空值/非法值逻辑运算结果返回 `null`；UI 展示统一显示 `--`，异常场景强制埋日志，杜绝崩溃、空白、误导性 0 值
 
 ---
 
@@ -28,8 +28,8 @@ object FinanceConst {
     const val CALC_SCALE = 30
     /** 默认舍入模式：直接截断（撮合、链上结算默认规则） */
     val DEFAULT_ROUND = RoundingMode.DOWN
-    /** 非法数值 / 空值默认兜底字符串 */
-    const val DEFAULT_ZERO_STR = "0"
+    /** 空值 / 非法数值 UI 展示占位符 */
+    const val DEFAULT_EMPTY_DISPLAY = "--"
 }
 ```
 
@@ -42,7 +42,6 @@ object FinanceConst {
 ```kotlin
 val financeGson = GsonBuilder()
     .setObjectToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
-    .registerTypeAdapter(String::class.java, BigDecimalStringTypeAdapter())
     .create()
 ```
 
@@ -76,7 +75,7 @@ data class ApiOrder(
 )
 ```
 
-**边界规则（AI 自动兜底）**：`null` / 空串 / 非法数字 / `"null"` 统一视为 0
+**边界规则（AI 自动兜底）**：`null` / 空串 / 非法数字 / `"null"` 参与逻辑运算时结果返回 `null`，UI 展示统一显示 `--`
 
 ---
 
@@ -84,7 +83,7 @@ data class ApiOrder(
 
 ### 1. BigDecimalOps（底层原子能力）
 
-提供安全四则运算、精确比较、异常捕获。统一 30 位基准精度、默认截断模式；除法、乘法支持传入自定义 RoundingMode。`safeAction` 捕获除零、格式异常，兜底 0；异常时 **MUST** 打印错误日志（原始入参 + 异常信息）。
+提供安全四则运算、精确比较、异常捕获。统一 30 位基准精度、默认截断模式；除法、乘法支持传入自定义 RoundingMode。`safeAction` 捕获除零、格式异常，逻辑运算结果返回 `null`；异常时 **MUST** 打印错误日志（原始入参 + 异常信息）。
 
 ### 2. 扩展函数（业务唯一入口）
 
@@ -94,7 +93,7 @@ data class ApiOrder(
 - 兼容别名：`plus / subtract / multiply / divide`（方便不同编码习惯）
 - 比较：`greaterThan / greaterOrEquals / lessThan / lessOrEquals / equalsByBigDecimal`
 - 工具：`toBigDecimalSafe / stripTrailingZeros / decimalPlaces / isValidAmount`
-- 特性：空值非法值自动归零，返回非空字符串，无 NPE
+- 特性：空值非法值参与逻辑运算时返回 `null`，UI 格式化层统一展示 `--`，无 NPE
 - `isValidAmount` 附加：支持传入最小交易面额，校验是否满足币种最小下单单位
 
 **Number? 扩展**（UI 桥接）
@@ -155,19 +154,21 @@ val canTrade = amount.isValidAmount(minLimit = "0.00000001")
 
 **入参**
 
-- 前端纯数字，禁止千分逗号
-- 兼容标准科学计数 `1E-8`，后端自动解析为标准小数
+- 金融金额、价格、数量、费率等带小数位字段 **MUST** 使用 `String` 或 `BigDecimal` 入参，**MUST NOT** 使用 `Double` / `Float`
+- 前端入参禁止千分逗号；使用 `String` 时只允许标准数字字符串
+- 兼容标准科学计数 `1E-8`，解析后必须进入 `BigDecimal` 链路
 
 **出参**
 
-- 交易撮合：输出 JSON 数字（无引号）
-- 对账理财：输出 JSON 字符串（带引号，绝对安全）
+- 金融金额、价格、数量、费率等带小数位字段 **MUST** 使用 `String` 或 `BigDecimal` 出参，**MUST NOT** 使用 `Double` / `Float`
+- 对外 JSON 为避免客户端精度损失，金融小数字段推荐输出 JSON 字符串（带引号）
+- 仅纯整数计数类字段（如条数、页码、毫秒时间戳）可使用 `Int` / `Long`
 
 ---
 
 ## 九、边界兜底规则（AI 全覆盖）
 
-空值、空串、非法字符、超大数、极小数、科学计数、除零异常、负数场景全覆盖；异常转换 / 除零自动打日志，统一归零不崩溃。
+空值、空串、非法字符、超大数、极小数、科学计数、除零异常、负数场景全覆盖；异常转换 / 除零自动打日志，逻辑运算结果返回 `null`，UI 展示统一显示 `--`，禁止静默归零。
 
 ---
 
@@ -178,3 +179,4 @@ val canTrade = amount.isValidAmount(minLimit = "0.00000001")
 3. 所有非规范格式化一律驳回
 4. 所有硬编码精度 / 舍入一律驳回
 5. 所有不安全 BigDecimal 构造一律驳回
+6. 所有空值 / 非法值静默归零一律驳回，必须逻辑返回 `null`、UI 显示 `--`
