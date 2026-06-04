@@ -1,14 +1,16 @@
 # Android 项目编码规范 Spec | AI-First 编码约束仓库
-> 适配 Cursor / Claude Code / CodeX AI 自动编码、代码审查、静态纠错，Android Kotlin 金融类项目专用规范库
+> 适配 Cursor / Claude Code / Codex / GitHub Copilot AI 自动编码、代码审查、静态纠错，Android Kotlin 金融类项目专用规范库
 
 ## 仓库介绍
-本仓库收纳两套项目强制编码规范，面向**跨境金融App（多语言+RTL阿拉伯/波斯/希伯来）**，所有规范采用 `MUST / MUST NOT` 标准化语法，AI 可自动解析约束，编码生成与CR校验自动落地规范，用于统一团队编码口径、规避线上精度bug、RTL布局错乱、多语言漏翻译等高频问题。
+本仓库收纳三套项目强制编码规范，面向**跨境金融App（多语言+RTL阿拉伯/波斯/希伯来）**，所有规范采用结构化约束描述，AI 可自动解析约束，编码生成与CR校验自动落地规范，用于统一团队编码口径、规避线上精度bug、RTL布局错乱、多语言漏翻译、AI重复造轮子和项目风格漂移等高频问题。
 
 ### 包含规范文档
 1. **[金融高精度数值规范](./specs/finance-number-skill.md)**
 统一金额、百分比、币种运算规则，杜绝Double/Float浮点丢失精度，全链路`String`存值+BigDecimal运算+统一格式化工具`NumericFormat`。
 2. **[RTL国际化多语言适配规范](./specs/rtl-adaption.md)**
 适配阿拉伯语、波斯语、希伯来语等RTL从右往左语种，约束布局start/end、数值LTR防翻转、多语言禁止硬编码、TextView统一样式、波斯语行间距修复等全场景规则。
+3. **[Kotlin代码风格与AI生成约束](./specs/kotlin-style.md)**
+统一 Kotlin/Android 代码格式、命名、目录分层、MVI状态、协程Flow、空安全和反模式约束，强调项目优先级、不要造轮子、生成前先检索已有实现。
 
 ## AI 使用指引
 1. 项目接入：将本仓库spec文档加入项目AI知识库，Cursor/Claude可实时读取规范；
@@ -28,6 +30,7 @@ your-android-project/
   specs/
     finance-number-skill.md
     rtl-adaption.md
+    kotlin-style.md
 ```
 
 ### 2. Codex 接入
@@ -41,9 +44,11 @@ your-android-project/
 
 - 金融数值处理必须读取并遵守 `specs/finance-number-skill.md`
 - RTL / 多语言适配必须读取并遵守 `specs/rtl-adaption.md`
+- Kotlin 代码风格与 AI 生成约束必须读取并遵守 `specs/kotlin-style.md`
 - 生成代码、重构、Code Review 时，命中 MUST NOT 规则必须主动修复或驳回
 - 金融小数字段禁止使用 Double / Float
 - UI 可见文案禁止硬编码
+- 新增代码前必须先检索项目已有同类实现，禁止重复造轮子
 ```
 
 ### 3. Claude Code 接入
@@ -59,9 +64,11 @@ your-android-project/
 
 1. `specs/finance-number-skill.md`
 2. `specs/rtl-adaption.md`
+3. `specs/kotlin-style.md`
 
 所有 MUST / MUST NOT 规则视为强制约束。
 如代码与规范冲突，以 specs 文档为准。
+如通用规范与项目已有实现或工具配置冲突，以项目已有实现和工具配置为准。
 ```
 
 ### 4. Cursor 接入
@@ -82,11 +89,29 @@ alwaysApply: true
 
 - @specs/finance-number-skill.md
 - @specs/rtl-adaption.md
+- @specs/kotlin-style.md
 
 生成、修改、Review Android 代码时，必须执行 specs 中的 MUST / MUST NOT 规则。
+新增代码前必须先检索项目已有实现，优先复用项目现有架构、封装和工具配置。
 ```
 
-### 5. 推荐目录结构
+### 5. GitHub Copilot 接入
+
+在目标项目新增 `.github/copilot-instructions.md`：
+
+```md
+# GitHub Copilot 说明
+
+生成或修改 Kotlin/Android 代码时，必须遵循项目统一代码规范：
+
+- `specs/finance-number-skill.md`
+- `specs/rtl-adaption.md`
+- `specs/kotlin-style.md`
+
+优先遵循项目已有架构、命名、包结构、封装、MVI 约定、Repository 模式、Result/错误处理、协程辅助函数和 Flow 收集方式。已有项目实现可复用时，不要新增重复抽象或依赖。
+```
+
+### 6. 推荐目录结构
 
 ```text
 your-android-project/
@@ -95,9 +120,12 @@ your-android-project/
   .cursor/
     rules/
       android-finance.mdc
+  .github/
+    copilot-instructions.md
   specs/
     finance-number-skill.md
     rtl-adaption.md
+    kotlin-style.md
 ```
 
 ## 规范核心能力总结
@@ -111,3 +139,9 @@ your-android-project/
 - 价格/日期/币对自动LTR隔离，防止RTL文字反转、正负号错位
 - 统一TextView四件套：`textSize/textColor/fontFamily/includeFontPadding=false`，解决波斯语多行行距异常
 - 全页面文案禁止硬编码，统一多语言资源引用，参数文案使用{0}占位符
+
+### 3. Kotlin代码规范核心管控点
+- 项目优先级最高，生成或修改代码必须优先遵循项目已有架构、封装、命名、工具配置
+- 不要造轮子，禁止臆造不存在的基类、工具类、扩展函数、架构组件或第三方依赖
+- 统一 MVI、Repository、StateFlow、协程异常捕获、Flow 生命周期收集和错误转换方式
+- 强化空安全和金融编码约束，禁止`!!`、`GlobalScope`、裸`launch`、敏感日志和全局可变运行时状态
