@@ -104,7 +104,7 @@ Int/Long/Float/Double 统一转字符串复用 String 整套逻辑，**MUST NOT*
 
 AI 生成 UI 展示代码 **MUST** 全部走此类。默认全局 DOWN 截断；账单、年化展示场景支持入参切换 HALF_UP 四舍五入。统一负数规则：运算原生支持负数字符串，格式化可配置正负前缀 / 括号包裹负数。
 
-能力：千分位、精度截断、K/M/B/T 大数缩写、钱包余额、百分比、极小价零位压缩。
+能力：千分位、精度截断、K/M/B/T 大数缩写、钱包余额、百分比、极小价零位压缩。内部 **MUST** 使用 `BigDecimal.toPlainString()` 避免科学计数法。
 
 ---
 
@@ -147,6 +147,7 @@ val canTrade = amount.isValidAmount(minLimit = "0.00000001")
 | 字符串直接大小比较 | 字典序错误 | 使用 `greaterThan` 系列方法 |
 | `String.format` / `DecimalFormat` 手写 | 隐式丢精度 | 替换为 `NumericFormat` |
 | 硬编码 `scale` / 舍入模式 | 不统一 | 使用 `FinanceConst` 常量 |
+| `BigDecimal.toString()` / `Double.toString()` | 极小值输出科学计数法（如 `1E-8`），前端解析异常 | 替换为 `toPlainString()` |
 
 ---
 
@@ -161,6 +162,7 @@ val canTrade = amount.isValidAmount(minLimit = "0.00000001")
 **出参**
 
 - 金融金额、价格、数量、费率等带小数位字段 **MUST** 使用 `String` 或 `BigDecimal` 出参，**MUST NOT** 使用 `Double` / `Float`
+- BigDecimal/Double/Float 转字符串 **MUST** 使用 `toPlainString()`，**MUST NOT** 使用 `toString()`，避免极小值被格式化为科学计数法（如 `1E-8` 应输出 `"0.00000001"`）
 - 对外 JSON 为避免客户端精度损失，金融小数字段推荐输出 JSON 字符串（带引号）
 - 仅纯整数计数类字段（如条数、页码、毫秒时间戳）可使用 `Int` / `Long`
 
@@ -180,3 +182,4 @@ val canTrade = amount.isValidAmount(minLimit = "0.00000001")
 4. 所有硬编码精度 / 舍入一律驳回
 5. 所有不安全 BigDecimal 构造一律驳回
 6. 所有空值 / 非法值静默归零一律驳回，必须逻辑返回 `null`、UI 显示 `--`
+7. 所有 BigDecimal/Double/Float 转字符串使用 `toString()` 一律驳回，必须使用 `toPlainString()`
