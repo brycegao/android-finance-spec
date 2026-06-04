@@ -15,6 +15,91 @@
 2. 编码生成：AI生成布局、业务代码自动遵循MUST强制规则，违规代码直接拦截；
 3. CodeReview：提交代码时AI自动对照规范检查，命中禁止项直接标注驳回。
 
+## 快速接入
+
+推荐在目标 Android 项目中保留统一 `specs/` 目录，再为不同 AI 工具添加薄入口文件。入口文件只负责声明“必须读取 specs”，不要复制完整规则，避免多份提示词发散。
+
+### 1. 复制规范目录
+
+将本仓库 `specs/` 目录复制到目标项目根目录：
+
+```text
+your-android-project/
+  specs/
+    finance-number-skill.md
+    rtl-adaption.md
+```
+
+### 2. Codex 接入
+
+在目标项目根目录新增 `AGENTS.md`：
+
+```md
+# AGENTS.md
+
+你是资深 Android + Kotlin 工程师，当前项目必须遵守以下规范：
+
+- 金融数值处理必须读取并遵守 `specs/finance-number-skill.md`
+- RTL / 多语言适配必须读取并遵守 `specs/rtl-adaption.md`
+- 生成代码、重构、Code Review 时，命中 MUST NOT 规则必须主动修复或驳回
+- 金融小数字段禁止使用 Double / Float
+- UI 可见文案禁止硬编码
+```
+
+### 3. Claude Code 接入
+
+在目标项目根目录新增 `CLAUDE.md`：
+
+```md
+# CLAUDE.md
+
+本项目是 Android Kotlin 金融类 App。
+
+每次进行代码生成、重构、Review 前，必须先读取：
+
+1. `specs/finance-number-skill.md`
+2. `specs/rtl-adaption.md`
+
+所有 MUST / MUST NOT 规则视为强制约束。
+如代码与规范冲突，以 specs 文档为准。
+```
+
+### 4. Cursor 接入
+
+在目标项目新增 `.cursor/rules/android-finance.mdc`：
+
+```md
+---
+description: Android Kotlin 金融数值与 RTL 国际化强制规范
+globs:
+  - "**/*.kt"
+  - "**/*.xml"
+  - "**/*.java"
+alwaysApply: true
+---
+
+本项目必须遵守：
+
+- @specs/finance-number-skill.md
+- @specs/rtl-adaption.md
+
+生成、修改、Review Android 代码时，必须执行 specs 中的 MUST / MUST NOT 规则。
+```
+
+### 5. 推荐目录结构
+
+```text
+your-android-project/
+  AGENTS.md
+  CLAUDE.md
+  .cursor/
+    rules/
+      android-finance.mdc
+  specs/
+    finance-number-skill.md
+    rtl-adaption.md
+```
+
 ## 规范核心能力总结
 ### 1. 金融数值规范核心管控点
 - 金融金额、涨跌、成交量**禁止Double/Float**，全链路`String`承载原始数值
