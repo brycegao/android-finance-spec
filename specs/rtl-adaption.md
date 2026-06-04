@@ -17,6 +17,7 @@
 4. **SHOULD NOT** 设置 `android:layoutDirection`，默认让子 View 跟随当前语言方向自动切换；仅当 RTL/LTR 语言下必须保持同一方向时才允许显式设置
 5. **MUST** 为每个 TextView 设置字号、字体、字色，禁止依赖全局默认值
 6. **MUST** 关闭 `includeFontPadding`，避免阿拉伯语、波斯语多行文本间距与 UI 稿不一致
+7. **MUST** 纯数字、币对、数值文案（价格、涨跌幅、成交量等）的 TextView 设置 `android:textDirection="ltr"`，从渲染引擎层二次兜底，防止 RTL 双向算法重排数字、符号、斜杠顺序
 
 ---
 
@@ -216,13 +217,22 @@ ResUtils.getString(R.string.quiz_result).formatWrapper(correct, wrong)
 
 ## 五、TextView 样式规范（含 RTL 字体间距修复）
 
-### 5.1 四要素必填（新增 includeFontPadding）
+### 5.1 属性必填（含 textDirection + includeFontPadding）
 
-每个 TextView **MUST** 设置以下 4 个属性，禁止依赖全局默认值。由于 UI 控件存在多种业务配置和视觉差异，**MUST NOT** 仅依赖 `style` / `theme` 统一兜底，AI 生成或 Review 时必须能在当前控件声明中识别到明确配置。
+每个 TextView **MUST** 设置字号、字色、字体、`includeFontPadding` 四项；显示纯数字、币对、金额、涨跌幅等数值类文案的 TextView **另须**设置 `android:textDirection="ltr"`。禁止依赖全局默认值，**MUST NOT** 仅依赖 `style` / `theme` 统一兜底，AI 生成或 Review 时必须能在当前控件声明中识别到明确配置。
 
 ```xml
+<!-- 数值类文案：textDirection 不可缺失 -->
 <TextView
     android:textSize="@dimen/text_size_14"
+    android:textColor="@color/text_primary"
+    android:fontFamily="@font/harmony_sans_regular"
+    android:includeFontPadding="false"
+    android:textDirection="ltr" />
+
+<!-- 纯语义文案（翻译文本）：无需设置 textDirection，跟随系统 locale 即可 -->
+<TextView
+    android:textSize="@dimen/text_size_body"
     android:textColor="@color/text_primary"
     android:fontFamily="@font/harmony_sans_regular"
     android:includeFontPadding="false" />
@@ -234,6 +244,7 @@ ResUtils.getString(R.string.quiz_result).formatWrapper(correct, wrong)
 | `textColor` | 禁止硬编码颜色值，MUST 引用 color 资源 |
 | `fontFamily` | 禁止使用系统默认字体，MUST 显式指定项目字体 |
 | `includeFontPadding` | 必须设为 false，避免波斯语/阿拉伯语多行文本行间距与 UI 不一致 |
+| `textDirection` | 数值/币对类 TextView **MUST** 设为 `"ltr"`；纯语义文案无需设置 |
 
 ### 5.2 字号、字色语义化
 
@@ -269,6 +280,8 @@ android:textColor="#FF333333"
 | TextView 未设置 `fontFamily` | 依赖全局默认不可控 | 设置 `fontFamily` 字体资源 |
 | `textSize="14sp"` 硬编码 | 无法统一调整 | 引用 `@dimen/xxx` |
 | `includeFontPadding="true"` | 波斯语多行文本间距错乱 | 强制改为 `false` |
+| 数值类 TextView 未设置 `textDirection` | RTL 下默认 `anyRtl`，数字/符号/斜杠可能被重排 | 添加 `android:textDirection="ltr"` |
+| 纯语义文案误设 `textDirection="ltr"` | 阿拉伯语/波斯语文案显示方向错误 | 移除该属性，由系统 locale 自动控制 |
 
 ---
 
@@ -276,16 +289,16 @@ android:textColor="#FF333333"
 
 | 场景 | 处理方式 |
 |------|---------|
-| 价格 / 金额 / 数量 | `.keepLTR()` |
-| 涨跌幅百分比 | `.keepLTR()` |
-| 成交量 / 市值 | `.keepLTR()` |
-| 币对名称 BTC/USDT | `.keepLTR()` |
+| 价格 / 金额 / 数量 | `.keepLTR()` + `textDirection="ltr"` |
+| 涨跌幅百分比 | `.keepLTR()` + `textDirection="ltr"` |
+| 成交量 / 市值 | `.keepLTR()` + `textDirection="ltr"` |
+| 币对名称 BTC/USDT | `.keepLTR()` + `textDirection="ltr"` |
 | +/- 符号 | 与数值整体包裹在 `keepLTR()` 内 |
 | 数值为 0 | 显示 `0.00%`，禁止 +/- 前缀 |
 | 用户名 / 昵称 | `.fitRtl()` |
 | 钱包地址 / 邮箱 | `.textAdapterRtl()` |
 | 日期时间 | `.keepLTR()` |
-| 纯 UI 文案 | 多语言 `getString()` |
+| 纯 UI 文案 | 多语言 `getString()`，无需 textDirection |
 | 图标方向 | `drawableStart/End` + `start/end` 约束 |
 | 弹窗定位 | 根据 `isRtl()` 切换 Left/Right Popup |
 | 波斯语/阿拉伯语多行文本 | `android:includeFontPadding="false"` |
@@ -302,3 +315,4 @@ android:textColor="#FF333333"
 6. 所有 TextView 未设置字号/字色/字体/includeFontPadding 四项一律驳回
 7. 数值为 0 时显示 +/- 前缀一律驳回
 8. 所有 `includeFontPadding` 未设为 `false` 一律驳回
+9. 所有显示纯数字、币对、金额、涨跌幅等数值类文案的 TextView 未设置 `android:textDirection="ltr"` 一律驳回
