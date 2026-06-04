@@ -20,16 +20,14 @@
 
 ## 二、全局常量（AI 禁止硬编码）
 
-> CALC_SCALE=24：平衡精度与性能，覆盖主流加密货币 18 位小数 + 1~2 轮乘除中间量溢出
+> CALC_SCALE=30：预留冗余精度，覆盖主流加密货币 18 位小数 + 多级连乘损耗
 
 ```kotlin
 object FinanceConst {
     /** 内部计算最大精度，预留冗余兼容多轮乘除 */
-    const val CALC_SCALE = 24
-    /** 内部运算舍入：直接截断（撮合、链上结算规则，符合金融风控保守原则） */
-    val CALC_ROUND = RoundingMode.DOWN
-    /** 展示层舍入：四舍五入（用户账单、资产页、K线等面向用户场景） */
-    val DISPLAY_ROUND = RoundingMode.HALF_UP
+    const val CALC_SCALE = 30
+    /** 默认舍入模式：直接截断（撮合、链上结算默认规则） */
+    val DEFAULT_ROUND = RoundingMode.DOWN
     /** 空值 / 非法数值 UI 展示占位符 */
     const val DEFAULT_EMPTY_DISPLAY = "--"
 }
@@ -85,7 +83,7 @@ data class ApiOrder(
 
 ### 1. BigDecimalOps（底层原子能力）
 
-提供安全四则运算、精确比较、异常捕获。统一 `CALC_SCALE` 基准精度、默认 `CALC_ROUND`（DOWN 截断）；除法、乘法支持传入自定义 RoundingMode。`safeAction` 捕获除零、格式异常，逻辑运算结果返回 `null`；异常时 **MUST** 打印错误日志（原始入参 + 异常信息）。
+提供安全四则运算、精确比较、异常捕获。统一 30 位基准精度、默认截断模式；除法、乘法支持传入自定义 RoundingMode。`safeAction` 捕获除零、格式异常，逻辑运算结果返回 `null`；异常时 **MUST** 打印错误日志（原始入参 + 异常信息）。
 
 ### 2. 扩展函数（业务唯一入口）
 
@@ -104,7 +102,7 @@ Int/Long/Float/Double 统一转字符串复用 String 整套逻辑，**MUST NOT*
 
 ### 3. NumericFormat（唯一格式化层）
 
-AI 生成 UI 展示代码 **MUST** 全部走此类。默认 `DISPLAY_ROUND`（HALF_UP 四舍五入，符合用户直观预期）；内部对账、风控等高精度场景可入参切换 `CALC_ROUND`（DOWN 截断）。统一负数规则：运算原生支持负数字符串，格式化可配置正负前缀 / 括号包裹负数。
+AI 生成 UI 展示代码 **MUST** 全部走此类。默认全局 DOWN 截断；账单、年化展示场景支持入参切换 HALF_UP 四舍五入。统一负数规则：运算原生支持负数字符串，格式化可配置正负前缀 / 括号包裹负数。
 
 能力：千分位、精度截断、K/M/B/T 大数缩写、钱包余额、百分比、极小价零位压缩。
 
@@ -148,7 +146,7 @@ val canTrade = amount.isValidAmount(minLimit = "0.00000001")
 | `a.toDouble() + b.toDouble()` | 浮点误差 | 使用扩展 `add/minus/times/div` |
 | 字符串直接大小比较 | 字典序错误 | 使用 `greaterThan` 系列方法 |
 | `String.format` / `DecimalFormat` 手写 | 隐式丢精度 | 替换为 `NumericFormat` |
-| 硬编码 `scale` / 舍入模式 | 不统一 | 使用 `FinanceConst.CALC_SCALE` / `FinanceConst.CALC_ROUND` / `FinanceConst.DISPLAY_ROUND` |
+| 硬编码 `scale` / 舍入模式 | 不统一 | 使用 `FinanceConst` 常量 |
 
 ---
 
