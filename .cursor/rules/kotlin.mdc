@@ -1,0 +1,21 @@
+---
+description: Kotlin and Android code generation rules
+globs:
+  - "**/*.kt"
+  - "**/*.kts"
+alwaysApply: true
+---
+
+# Kotlin/Android 规则
+
+生成或修改 Kotlin/Android 代码时，必须遵循项目统一代码规范：
+
+- `specs/kotlin-style.md`
+
+优先级：
+
+1. 项目已有实现和工具配置。
+2. `specs/kotlin-style.md`。
+3. 通用 Kotlin、Android、ktlint、detekt 规范。
+
+不要臆造项目中不存在的封装、基类、扩展函数、依赖或架构组件。新增实现前，必须先检索项目中是否已有同类代码并优先复用。
