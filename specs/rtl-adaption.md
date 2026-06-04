@@ -67,23 +67,45 @@ android:layout_constraintEnd_toEndOf="parent"
 
 RTL 语言下（阿拉伯语、希伯来语、波斯语），TextView 内容会受 Unicode 双向算法影响。数字本身通常不会逐位翻转，但 `+/-` 符号、百分号、币种、斜杠、范围符以及混合文案的相对顺序可能被重排，例如 `+5.23%` 的 `+` 可能跑到数字右侧。
 
-### 3.2 keepLTR() 工具函数
+### 3.2 RTL 判断工具函数
 
-**MUST** 对所有数值文案调用 `keepLTR()`，内部使用 Unicode 双向隔离符 LRI(`⁦`) + PDI(`⁩`) 包裹文本，确保内容始终从左到右渲染：
+所有适配函数依赖 `isRtl()` 判断当前语言方向，**MUST** 统一实现（禁止在各处重复判断逻辑）：
 
 ```kotlin
 /**
- * 强制文本从左到右渲染，RTL 语言下防止符号、单位和混合文本顺序错位
- * 原理：U+2066(LRI) + 原文 + U+2069(PDI) 形成双向隔离
+ * 判断当前系统语言是否为 RTL（阿拉伯语、波斯语、希伯来语等）
+ * 原理：ViewCompat 兼容方案，适配 API 17+
+ */
+fun isRtl(): Boolean {
+    return ViewCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == ViewCompat.LAYOUT_DIRECTION_RTL
+}
+```
+
+### 3.3 keepLTR() 工具函数
+
+**MUST** 对所有数值文案调用 `keepLTR()`，内部使用 Unicode 双向隔离符 LRI(`⁦`) + PDI(`⁩`) 包裹文本，确保内容始终从左到右渲染。提供两个重载避免调用链断裂：
+
+```kotlin
+/**
+ * 非空版本：输入非空 String，返回非空 String，调用链无需判空
+ */
+fun String.keepLTR(): String {
+    return if (isRtl() && isNotEmpty()) {
+        "\u2066$this\u2069"
+    } else this
+}
+
+/**
+ * 可空版本：输入 String?，输出 String?，空值透传
  */
 fun String?.keepLTR(): String? {
     return if (isRtl() && !isNullOrEmpty()) {
-        "⁦$this⁩"
+        "\u2066$this\u2069"
     } else this
 }
 ```
 
-### 3.3 必须调用 keepLTR() 的场景
+### 3.4 必须调用 keepLTR() 的场景
 
 - 价格：`"42,156.78 USDT".keepLTR()`
 - 涨跌幅：`"+5.23%".keepLTR()` / `"-3.15%".keepLTR()`
@@ -94,7 +116,7 @@ fun String?.keepLTR(): String? {
 - 币对名称：`"BTC/USDT".keepLTR()`
 - 日期：`"2025-01-15 14:30:00".keepLTR()`
 
-### 3.4 +/- 符号规则
+### 3.5 +/- 符号规则
 
 - `+`/`-` **MUST** 始终在数字左侧，跟随数字一起被 `keepLTR()` 包裹
 - 数值为 0 时 **MUST** 显示 `0.00%`，**MUST NOT** 显示 `-0.00%` 或 `+0.00%`
@@ -108,7 +130,7 @@ val display = "${sign}5.23%".keepLTR()
 val display = sign + "5.23%".keepLTR()
 ```
 
-### 3.5 fitRtl() — 非数值内容的 RTL 适配
+### 3.6 fitRtl() — 非数值内容的 RTL 适配
 
 用户名、地址、邮箱等非数值混合文本，使用 RLM(`‏`) 标记方向：
 
@@ -122,7 +144,7 @@ fun String?.fitRtl(): String? {
 }
 ```
 
-### 3.6 textAdapterRtl() — 地址类长文本
+### 3.7 textAdapterRtl() — 地址类长文本
 
 钱包地址、邮箱、手机号等长字符串，使用 LRM(`‎`) 防止被 RTL 引擎拆分：
 
@@ -132,7 +154,7 @@ fun String?.textAdapterRtl(): String? {
 }
 ```
 
-### 3.7 格式化层集成
+### 3.8 格式化层集成
 
 `NumericFormat` 等格式化函数 **MUST** 在最终输出时自动调用 `keepLTR()`，业务层无需重复调用：
 
