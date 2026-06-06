@@ -1,5 +1,9 @@
-# Android 项目编码规范 Spec | AI-First 编码约束仓库
-> 适配 Cursor / Claude Code / Codex / GitHub Copilot AI 自动编码、代码审查、静态纠错，Android Kotlin 金融类项目专用规范库
+# Android Finance AI Coding Spec
+## 金融Android生产级AI编码规范
+
+> Production-Grade AI-First Spec for Kotlin Financial App | Unify Cursor / Claude / Copilot / CodeX Code Output
+ 
+> 统一 Cursor / Claude Code / GitHub Copilot / CodeX 代码生成标准
 
 ## 仓库介绍
 区别于通用 Android 规范，本项目**专为理财、银行、信贷、支付、资产类金融 App 定制**，解决金融项目最核心痛点：
