@@ -1,13 +1,16 @@
-# AI 编码说明
+# Android Finance Spec Agent Instructions
 
-所有在本仓库生成或修改 Kotlin/Android 代码的 AI Agent，必须遵循项目统一代码规范：
+When generating, editing, reviewing, or refactoring this repository, follow all Android finance specs:
 
+- `specs/finance-number-skill.md`
+- `specs/rtl-adaption.md`
 - `specs/kotlin-style.md`
 
-执行优先级：
+Rules:
 
-1. 优先遵循项目已有架构、命名、包结构、封装和工具配置。
-2. 不要臆造项目中不存在的基类、工具类、扩展函数、架构组件或依赖。
-3. 新增代码前先检索项目中是否已有同类实现。
-4. 复用项目已有的 MVI、Repository、Result/错误处理、协程启动和 Flow 收集约定。
-5. 修改代码后，在条件允许时运行相关 ktlint、detekt 或构建检查。
+1. Treat every MUST and MUST NOT rule as a hard gate.
+2. Keep the installable skill in `skills/android-finance-spec/` synchronized with root `specs/`.
+3. Before adding code, search for existing structure, naming, scripts, and documentation patterns.
+4. Do not invent missing helpers, wrappers, base classes, abstractions, or dependencies.
+5. After changing specs, run `python3 scripts/sync_skill_refs.py`.
+6. After changing scanner logic or examples, run `python3 -m unittest tests/test_android_finance_scan.py`.

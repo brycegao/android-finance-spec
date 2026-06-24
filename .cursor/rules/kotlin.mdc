@@ -1,21 +1,27 @@
 ---
-description: Kotlin and Android code generation rules
+description: Android finance precision, RTL/i18n, and Kotlin AI skill rules
 globs:
   - "**/*.kt"
   - "**/*.kts"
+  - "**/*.xml"
+  - "**/*.md"
+  - "**/*.py"
 alwaysApply: true
 ---
 
-# Kotlin/Android 规则
+# Android Finance Spec Rules
 
-生成或修改 Kotlin/Android 代码时，必须遵循项目统一代码规范：
+When generating, editing, or reviewing this repository, follow:
 
+- `specs/finance-number-skill.md`
+- `specs/rtl-adaption.md`
 - `specs/kotlin-style.md`
 
-优先级：
+Hard rules:
 
-1. 项目已有实现和工具配置。
-2. `specs/kotlin-style.md`。
-3. 通用 Kotlin、Android、ktlint、detekt 规范。
-
-不要臆造项目中不存在的封装、基类、扩展函数、依赖或架构组件。新增实现前，必须先检索项目中是否已有同类代码并优先复用。
+1. Treat every MUST and MUST NOT as a hard gate.
+2. Keep `skills/android-finance-spec/references/` synchronized with `specs/`.
+3. Reuse existing repository structure, scripts, and naming.
+4. Do not add unrelated framework, dependency, or prompt assets.
+5. Run `python3 scripts/sync_skill_refs.py` after spec edits.
+6. Run `python3 -m unittest tests/test_android_finance_scan.py` after scanner or example edits.

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Android Finance Spec Skill</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #111827;
+      --muted: #526070;
+      --line: #d7dde5;
+      --blue: #2563eb;
+      --green: #059669;
+      --red: #dc2626;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+    }
+
+    .card {
+      width: min(1120px, calc(100vw - 48px));
+      aspect-ratio: 16 / 9;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 54px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 46px;
+      box-shadow: 0 18px 50px rgba(17, 24, 39, 0.12);
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: 54px;
+      line-height: 1.04;
+      letter-spacing: 0;
+      margin: 0 0 22px;
+    }
+
+    .lead {
+      max-width: 620px;
+      font-size: 22px;
+      line-height: 1.55;
+      color: var(--muted);
+      margin: 0 0 34px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 34px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 13px;
+      font-size: 15px;
+      font-weight: 700;
+      background: #fbfdff;
+    }
+
+    .install {
+      border-left: 4px solid var(--blue);
+      padding: 16px 18px;
+      background: #f1f6ff;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #183153;
+    }
+
+    .checks {
+      display: grid;
+      gap: 16px;
+      align-content: center;
+    }
+
+    .check {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 19px 20px;
+      background: #ffffff;
+    }
+
+    .check strong {
+      display: block;
+      font-size: 19px;
+      margin-bottom: 7px;
+    }
+
+    .check span {
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .footer {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--line);
+      padding-top: 22px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .mark {
+      color: var(--green);
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <section>
+      <div class="eyebrow">Installable AI Skill for Android Finance Apps</div>
+      <h1>Android Finance Spec Skill</h1>
+      <p class="lead">把金融精度、RTL 国际化和 Kotlin 项目风格约束，打包成 AI 可安装、可调用、可审查的工程技能。</p>
+      <div class="chips">
+        <span class="chip">BigDecimal / String</span>
+        <span class="chip">RTL / i18n</span>
+        <span class="chip">Kotlin Style</span>
+        <span class="chip">AI Code Review</span>
+      </div>
+      <div class="install">npx skills add brycegao/android-finance-spec --path skills/android-finance-spec<br>/android-finance-spec</div>
+    </section>
+    <section class="checks">
+      <div class="check">
+        <strong><span class="mark">01</span> 金融精度红线</strong>
+        <span>金额、价格、数量、费率等小数字段禁止 Double / Float，统一 String 或 BigDecimal。</span>
+      </div>
+      <div class="check">
+        <strong><span class="mark">02</span> RTL 混排安全</strong>
+        <span>符号、币种、百分号、日期、币对和范围文案保持 LTR 隔离，避免顺序错位。</span>
+      </div>
+      <div class="check">
+        <strong><span class="mark">03</span> 项目优先</strong>
+        <span>生成代码前先检索已有架构、工具类、封装和命名，禁止重复造轮子。</span>
+      </div>
+    </section>
+    <div class="footer">
+      <span>For Codex / Claude Code / Cursor / Copilot</span>
+      <span>github.com/brycegao/android-finance-spec</span>
+    </div>
+  </main>
+</body>
+</html>
