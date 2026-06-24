@@ -1,195 +1,122 @@
-# Android Finance Spec Skills
-> Android 金融 App 缺失的 AI 编码标准：金融精度安全、RTL / 国际化 UI、安全复用项目既有 Kotlin 风格。
+# Android Finance Spec
 
-**语言:** [English](./README.md) | 简体中文
+> 别再用 `Double` 存钱了，别再让阿拉伯语布局错位了。让 AI 在写代码时就拦住这些问题。
 
-![Skills](https://img.shields.io/badge/skills-1-blue)
-![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Kotlin-green)
-![License](https://img.shields.io/badge/license-MIT-black)
-![Agents](https://img.shields.io/badge/agents-Codex%20%7C%20Claude%20Code%20%7C%20Cursor%20%7C%20Copilot-purple)
+[English](./README.md) | **简体中文**
 
-![Android Finance Spec Skill](./share/android-finance-skill-card.png)
+![Skills](https://img.shields.io/badge/skills-1-blue) ![Platform](https://img.shields.io/badge/platform-Android%20%7C%20Kotlin-green) ![License](https://img.shields.io/badge/license-MIT-black) ![Agents](https://img.shields.io/badge/agents-Codex%20%7C%20Claude%20Code%20%7C%20Cursor%20%7C%20Copilot-purple)
 
-## Skills
+![Android Finance Spec](./share/android-finance-skill-card.png)
 
-| Skill | 说明 | 安装 |
-|-------|------|------|
-| [**Android Finance Spec**](./skills/android-finance-spec/) | 为 Android Kotlin 金融代码提供 BigDecimal / String 精度、RTL / 国际化安全和项目优先 Kotlin 风格约束 | `npx skills add brycegao/android-finance-spec --path skills/android-finance-spec` |
+## 问题在哪
 
-## 快速开始
+Android 金融 App 在悄悄亏钱 — 字面意义上的。`Double` 截断加密小数位，`left`/`right` 布局翻转阿拉伯语文本，硬编码字符串绕过翻译管线。这些问题在 Code Review 中几乎看不见，但上线后代价惨重。
 
-安装任意 skill：
+**这个技能让你的 AI 编码代理在写代码时就捕获它们 — 不是部署时。**
 
-```bash
-npx skills add brycegao/android-finance-spec --path skills/<skill-name>
-```
+## 扫描器演示
 
-`npx` 会临时运行 npm 上的 `skills` CLI。真正解析 `brycegao/android-finance-spec` 的是 `skills` CLI，它会把 `owner/repo` 解析为 GitHub 仓库，再通过 `--path` 安装指定 skill 目录。
-
-安装本 skill：
-
-```bash
-npx skills add brycegao/android-finance-spec --path skills/android-finance-spec
-```
-
-安装后在 Agent 终端中调用：
-
-```bash
-/android-finance-spec    # Review 当前 Android Kotlin 改动
-```
-
-slash 调用依赖你的 Agent 终端和 `skills` CLI 集成。如果当前终端不支持 slash command，请使用下面的对话式调用。
-
-也可以在对话中直接点名 Skill：
-
-```text
-Use $android-finance-spec to review this Android Kotlin change for finance precision, RTL/i18n, and project style risks.
-```
-
-## 能检查什么
-
-- 金融小数字段使用 `Double` / `Float`
-- 不安全的 `BigDecimal` 构造和 `.toDouble()` / `.toFloat()` 转换
-- 手写金融格式化，而不是统一格式化工具
-- XML 中使用 `left` / `right` 导致 RTL 布局问题
-- `+/-`、`%`、币对、日期、范围、单位等 RTL 混排风险
-- Android XML 中硬编码用户可见文案
-- Kotlin 反模式，如 `!!`、`GlobalScope`、重复造项目已有工具
-
-## 本地扫描器
-
-执行第一轮静态扫描：
+对任意 Android 项目运行内置扫描器，即时获得检查结果：
 
 ```bash
 python3 skills/android-finance-spec/scripts/android_finance_scan.py /path/to/your-android-project
 ```
 
-扫描器是保守的第一道闸门，最终仍需要结合业务上下文 Review。
-
-试试内置示例：
-
-```bash
-python3 skills/android-finance-spec/scripts/android_finance_scan.py examples/bad-android-finance
-python3 skills/android-finance-spec/scripts/android_finance_scan.py examples/fixed-android-finance
-```
-
-坏示例应该报告金融精度、RTL 布局、硬编码文案、协程和空安全问题；修复示例应该通过扫描。
-
-## 验证
-
-运行 scanner 回归测试：
-
-```bash
-python3 -m unittest tests/test_android_finance_scan.py
-```
-
-修改 `specs/` 后，同步可安装 skill 的 references：
-
-```bash
-python3 scripts/sync_skill_refs.py
-```
-
-## 手动安装兜底
-
-如果当前环境没有 `npx skills`，可手动安装到 Codex：
-
-```bash
-mkdir -p ~/.codex/skills
-cp -R skills/android-finance-spec ~/.codex/skills/
-```
-
-## Skill 包结构
+**修复前** — 典型金融 DTO 发现 18 个问题：
 
 ```text
-skills/android-finance-spec/
-  SKILL.md
-  agents/openai.yaml
-  references/
-    finance-number-skill.md
-    rtl-adaption.md
-    kotlin-style.md
-  scripts/
-    android_finance_scan.py
+## [P1] FIN_FLOATING_DECIMAL_FIELD
+- Snippet: `val amount: Double?,`
+
+## [P1] RTL_LEFT_RIGHT_XML
+- Snippet: `android:layout_marginLeft="16dp"`
+
+## [P1] I18N_HARDCODED_ANDROID_TEXT
+- Snippet: `android:text="Price +5.23%"`
 ```
 
-## 示例
+**修复后** — 零问题：
 
 ```text
-examples/
-  bad-android-finance/
-  fixed-android-finance/
+# Android Finance Spec Scan
+No first-pass issues found.
 ```
 
-这些示例可用于演示 scanner、测试后续规则变更，也适合制作 before / after 传播截图。
+## 快速开始
+
+```bash
+npx skills add brycegao/android-finance-spec --path skills/android-finance-spec
+```
+
+在 Agent 终端中使用 slash 命令：
+
+```text
+/android-finance-spec    # 审查当前改动
+```
+
+也可以在对话中直接调用：
+
+```text
+Use $android-finance-spec to review this Android Kotlin change.
+```
+
+## 检查内容
+
+| 分类 | 规则 |
+|------|------|
+| **金融精度** | `Double`/`Float` 字段、不安全的 `BigDecimal` 构造、`.toDouble()` 转换、`toString()` 导致科学计数法 |
+| **RTL / 国际化** | `left`/`right` 布局属性、硬编码 `layoutDirection`、缺失 `keepLTR()`、硬编码可见文案、缺失 `textDirection="ltr"` |
+| **Kotlin 安全** | `!!` 断言、`GlobalScope`、无异常处理的裸 `launch` |
 
 ## 规范文档
 
-本仓库收纳三套 Android 金融工程规范：
-
-1. **[金融高精度数值规范](./specs/finance-number-skill.md)**  
-   统一金额、百分比、币种数量、手续费、费率、盈亏、余额等处理规则。金融小数字段必须使用 `String` 或 `BigDecimal`，禁止 `Double` / `Float`。
-2. **[RTL 国际化多语言适配规范](./specs/rtl-adaption.md)**  
-   覆盖 `start` / `end` 布局、符号 / 百分比 / 日期 / 币对 / 混合文案 LTR 隔离，以及禁止硬编码用户可见文案。
-3. **[Kotlin 代码风格与 AI 生成约束](./specs/kotlin-style.md)**  
-   约束项目优先、Kotlin / Android 风格、MVI / MVVM 一致性、协程 / Flow 安全、空安全，以及禁止重复造项目已有工具。
+| 规范 | 聚焦 |
+|------|------|
+| [**金融精度**](./specs/finance-number-skill.md) | `String?`/`BigDecimal` DTO、`NumericFormat` 展示、Gson 配置、边界兜底返回 `null`/`--` |
+| [**RTL & 国际化**](./specs/rtl-adaption.md) | `start`/`end` 布局、`keepLTR()` 隔离、`{0}/{1}` 占位符、TextView 必填属性 |
+| [**Kotlin 风格**](./specs/kotlin-style.md) | 项目优先架构、MVI/MVVM、协程/Flow 安全、空安全、禁止重复造轮子 |
 
 ## Agent 接入
 
-推荐在目标 Android 项目中保留统一 `specs/` 目录，再为不同 AI 工具添加薄入口文件。入口文件只负责声明“必须读取 specs”，不要复制完整规则，避免多份提示词发散。
+在项目的 Agent 配置中添加一行即可激活全部规范：
 
-### Codex
+| Agent | 配置文件 | 内容 |
+|-------|---------|------|
+| **Claude Code** | `CLAUDE.md` | 生成代码前读取 specs/finance-number-skill.md、specs/rtl-adaption.md、specs/kotlin-style.md，所有 MUST/MUST NOT 规则强制执行 |
+| **Cursor** | `.cursor/rules/android-finance.mdc` | 同上三个 spec 路径 + `globs: ["**/*.kt", "**/*.xml"]` + `alwaysApply: true` |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | 同上三个 spec 路径 + 项目优先指令 |
+| **Codex** | `AGENTS.md` | 同上三个 spec 路径 + 强制门禁规则 |
 
-在目标项目根目录新增 `AGENTS.md`：
+<details>
+<summary>📋 完整配置模板</summary>
 
-```md
-# AGENTS.md
-
-你是资深 Android + Kotlin 工程师，当前项目必须遵守以下规范：
-
-- `specs/finance-number-skill.md`
-- `specs/rtl-adaption.md`
-- `specs/kotlin-style.md`
-
-所有 MUST / MUST NOT 规则都是强制门禁。
-新增代码前必须先检索项目已有架构、工具类、封装、命名和目录结构。
-不要臆造项目中不存在的基类、扩展函数、统一封装、架构组件或依赖。
-```
-
-### Claude Code
-
-在目标项目根目录新增 `CLAUDE.md`：
+### Claude Code — `CLAUDE.md`
 
 ```md
-# CLAUDE.md
-
 本项目是 Android Kotlin 金融类 App。
 
 每次进行代码生成、重构、Review 前，必须先读取：
 
-1. `specs/finance-number-skill.md`
-2. `specs/rtl-adaption.md`
-3. `specs/kotlin-style.md`
+1. specs/finance-number-skill.md
+2. specs/rtl-adaption.md
+3. specs/kotlin-style.md
 
 所有 MUST / MUST NOT 规则视为强制约束。
 如通用规范与项目已有实现或工具配置冲突，以项目已有实现和工具配置为准。
 ```
 
-### Cursor
-
-在目标项目新增 `.cursor/rules/android-finance.mdc`：
+### Cursor — `.cursor/rules/android-finance.mdc`
 
 ```md
 ---
-description: Android Kotlin 金融数值、RTL 国际化与项目风格强制规范
+description: Android 金融数值、RTL 国际化与 Kotlin 风格强制规范
 globs:
   - "**/*.kt"
   - "**/*.xml"
-  - "**/*.java"
 alwaysApply: true
 ---
 
 本项目必须遵守：
-
 - @specs/finance-number-skill.md
 - @specs/rtl-adaption.md
 - @specs/kotlin-style.md
@@ -198,22 +125,29 @@ alwaysApply: true
 新增代码前必须先检索项目已有实现，优先复用项目现有架构、封装和工具配置。
 ```
 
-### GitHub Copilot
-
-在目标项目新增 `.github/copilot-instructions.md`：
+### GitHub Copilot — `.github/copilot-instructions.md`
 
 ```md
-# GitHub Copilot 说明
-
 生成或修改 Kotlin / Android 代码时，必须遵循项目统一代码规范：
+- specs/finance-number-skill.md
+- specs/rtl-adaption.md
+- specs/kotlin-style.md
 
-- `specs/finance-number-skill.md`
-- `specs/rtl-adaption.md`
-- `specs/kotlin-style.md`
-
-优先遵循项目已有架构、命名、包结构、封装、MVI 约定、Repository 模式、Result / 错误处理、协程辅助函数和 Flow 收集方式。
-已有项目实现可复用时，不要新增重复抽象或依赖。
+优先遵循项目已有架构，不要重复造已有工具。
 ```
+
+### Codex — `AGENTS.md`
+
+```md
+你是资深 Android + Kotlin 工程师，当前项目必须遵守：
+- specs/finance-number-skill.md
+- specs/rtl-adaption.md
+- specs/kotlin-style.md
+
+所有 MUST / MUST NOT 规则都是强制门禁。不要臆造项目中不存在的基类。
+```
+
+</details>
 
 ## 推荐目录结构
 
@@ -221,24 +155,14 @@ alwaysApply: true
 your-android-project/
   AGENTS.md
   CLAUDE.md
-  .cursor/
-    rules/
-      android-finance.mdc
-  .github/
-    copilot-instructions.md
+  .cursor/rules/android-finance.mdc
+  .github/copilot-instructions.md
   specs/
     finance-number-skill.md
     rtl-adaption.md
     kotlin-style.md
 ```
 
-## 截图传播素材
+## License
 
-以下文件可用于 README 头图、社媒预览、技术群传播或 GitHub issue / PR 宣传：
-
-```text
-share/android-finance-skill-card.html
-share/android-finance-skill-card.png
-```
-
-建议截图比例：`16:9`。
+[MIT](./LICENSE) © 2026 Bryce

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Android Finance Spec Skill</title>
+  <title>Android Finance Spec — AI Skill</title>
   <style>
     :root {
       color-scheme: light;
@@ -17,9 +17,7 @@
       --panel: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -37,85 +35,114 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 54px;
+      padding: 48px 54px;
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 46px;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 40px;
       box-shadow: 0 18px 50px rgba(17, 24, 39, 0.12);
     }
 
     .eyebrow {
       color: var(--blue);
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 700;
-      letter-spacing: 0;
-      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
     }
 
     h1 {
-      font-size: 54px;
-      line-height: 1.04;
-      letter-spacing: 0;
-      margin: 0 0 22px;
+      font-size: 48px;
+      line-height: 1.08;
+      letter-spacing: -0.5px;
+      margin: 0 0 16px;
     }
 
-    .lead {
-      max-width: 620px;
-      font-size: 22px;
-      line-height: 1.55;
+    .hook {
+      max-width: 600px;
+      font-size: 19px;
+      line-height: 1.6;
       color: var(--muted);
-      margin: 0 0 34px;
+      margin: 0 0 28px;
+    }
+
+    .hook strong {
+      color: var(--ink);
     }
 
     .chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 34px;
+      gap: 8px;
+      margin-bottom: 28px;
     }
 
     .chip {
       border: 1px solid var(--line);
       border-radius: 999px;
-      padding: 8px 13px;
-      font-size: 15px;
-      font-weight: 700;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 600;
       background: #fbfdff;
     }
 
     .install {
       border-left: 4px solid var(--blue);
-      padding: 16px 18px;
+      padding: 14px 16px;
       background: #f1f6ff;
       font-family: "SFMono-Regular", Consolas, monospace;
-      font-size: 16px;
+      font-size: 14px;
       line-height: 1.6;
       color: #183153;
     }
 
     .checks {
       display: grid;
-      gap: 16px;
+      gap: 14px;
       align-content: center;
     }
 
     .check {
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 19px 20px;
+      padding: 16px 18px;
       background: #ffffff;
     }
 
+    .check-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .check-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .check-icon.red { background: var(--red); }
+    .check-icon.blue { background: var(--blue); }
+    .check-icon.green { background: var(--green); }
+
     .check strong {
-      display: block;
-      font-size: 19px;
-      margin-bottom: 7px;
+      font-size: 17px;
+      margin: 0;
     }
 
     .check span {
       color: var(--muted);
-      font-size: 16px;
+      font-size: 14px;
       line-height: 1.45;
+      display: block;
+      padding-left: 32px;
     }
 
     .footer {
@@ -124,48 +151,52 @@
       justify-content: space-between;
       align-items: center;
       border-top: 1px solid var(--line);
-      padding-top: 22px;
+      padding-top: 18px;
       color: var(--muted);
-      font-size: 16px;
-    }
-
-    .mark {
-      color: var(--green);
-      font-weight: 800;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
   <main class="card">
     <section>
-      <div class="eyebrow">Installable AI Skill for Android Finance Apps</div>
-      <h1>Android Finance Spec Skill</h1>
-      <p class="lead">把金融精度、RTL 国际化和 Kotlin 项目风格约束，打包成 AI 可安装、可调用、可审查的工程技能。</p>
+      <div class="eyebrow">Installable AI Skill</div>
+      <h1>Android Finance Spec</h1>
+      <p class="hook">Stop shipping <strong>Double for money</strong>, <strong>broken Arabic layouts</strong>, and <strong>hardcoded strings</strong>. Let AI catch them at write time.</p>
       <div class="chips">
         <span class="chip">BigDecimal / String</span>
         <span class="chip">RTL / i18n</span>
-        <span class="chip">Kotlin Style</span>
-        <span class="chip">AI Code Review</span>
+        <span class="chip">Kotlin Safety</span>
+        <span class="chip">10 Scan Rules</span>
       </div>
-      <div class="install">npx skills add brycegao/android-finance-spec --path skills/android-finance-spec<br>/android-finance-spec</div>
+      <div class="install">npx skills add brycegao/android-finance-spec --path skills/android-finance-spec<br><br>/android-finance-spec &nbsp;# Review current changes</div>
     </section>
     <section class="checks">
       <div class="check">
-        <strong><span class="mark">01</span> 金融精度红线</strong>
-        <span>金额、价格、数量、费率等小数字段禁止 Double / Float，统一 String 或 BigDecimal。</span>
+        <div class="check-header">
+          <div class="check-icon red">$</div>
+          <strong>Financial Precision</strong>
+        </div>
+        <span>Amount, price, fee, rate fields MUST use String or BigDecimal — never Double/Float. Catches precision loss before it ships.</span>
       </div>
       <div class="check">
-        <strong><span class="mark">02</span> RTL 混排安全</strong>
-        <span>符号、币种、百分号、日期、币对和范围文案保持 LTR 隔离，避免顺序错位。</span>
+        <div class="check-header">
+          <div class="check-icon blue">↔</div>
+          <strong>RTL / i18n Safety</strong>
+        </div>
+        <span>start/end layouts, keepLTR() for numbers &amp; symbols, textDirection="ltr" — no more broken Arabic/Persian UI.</span>
       </div>
       <div class="check">
-        <strong><span class="mark">03</span> 项目优先</strong>
-        <span>生成代码前先检索已有架构、工具类、封装和命名，禁止重复造轮子。</span>
+        <div class="check-header">
+          <div class="check-icon green">✓</div>
+          <strong>Kotlin Discipline</strong>
+        </div>
+        <span>No !!, no GlobalScope, project-first architecture, lifecycle-aware coroutines, MVI/MVVM consistency.</span>
       </div>
     </section>
     <div class="footer">
-      <span>For Codex / Claude Code / Cursor / Copilot</span>
-      <span>github.com/brycegao/android-finance-spec</span>
+      <span>Codex · Claude Code · Cursor · Copilot</span>
+      <span>MIT · github.com/brycegao/android-finance-spec</span>
     </div>
   </main>
 </body>
