@@ -1,0 +1,7 @@
+interface:
+  display_name: "Android Finance Spec"
+  short_description: "Android finance precision, RTL, and Kotlin AI review"
+  brand_color: "#2563EB"
+  default_prompt: "Use $android-finance-spec to review this Android Kotlin change for finance precision, RTL/i18n, and project style risks."
+policy:
+  allow_implicit_invocation: true
