@@ -59,6 +59,15 @@ RULES: list[tuple[str, str, set[str], re.Pattern[str], str]] = [
         "Check BigDecimal constructor; prefer string/valueOf-safe sources, never floating values.",
     ),
     (
+        "P1",
+        "FIN_BIGDECIMAL_TOSTRING",
+        {".kt", ".java"},
+        re.compile(
+            r"\bBigDecimal\b.*\.toString\s*\(\)",
+        ),
+        "BigDecimal must use toPlainString(), not toString(), to avoid scientific notation.",
+    ),
+    (
         "P2",
         "FIN_MANUAL_FORMAT",
         {".kt", ".java"},
@@ -94,7 +103,7 @@ RULES: list[tuple[str, str, set[str], re.Pattern[str], str]] = [
         "P2",
         "KOTLIN_NOT_NULL_ASSERT",
         {".kt"},
-        re.compile(r"!!"),
+        re.compile(r"(?<=[)\w])!!"),
         "Avoid Kotlin non-null assertions in production code.",
     ),
     (

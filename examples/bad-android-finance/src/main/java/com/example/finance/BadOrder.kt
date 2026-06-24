@@ -16,9 +16,10 @@ class BadOrderPresenter {
         val total = order!!.amount!!.toDouble() * order.price!!.toDouble()
         val display = DecimalFormat("#,##0.00").format(total)
         val unsafeAmount = BigDecimal(order.amount)
+        val unsafeStr = BigDecimal(order.amount).toString()
 
         GlobalScope.launch {
-            println("total=$display unsafe=$unsafeAmount")
+            println("total=$display unsafe=$unsafeAmount str=$unsafeStr")
         }
     }
 }
